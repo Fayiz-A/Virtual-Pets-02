@@ -43,7 +43,8 @@ class Food {
       if (foodStock >= 0) {
          //this ensures that the dog is fed only when there are milk bottles available
          foodStock--;
-         writeStock(foodStock);//writes the bottles remaining in the database
+
+         food.writeStock(foodStock);//writes the bottles remaining in the database
          dog.addImage('dog image', happyDog_img);//changes the dog image
       }
 
@@ -57,7 +58,27 @@ class Food {
    addFood() {
       //function which executes when the user presses the add food button
       foodStock++;
-      writeStock(foodStock);//writes the bottles remaining in the database
+      food.writeStock(foodStock);//writes the bottles remaining in the database
+   }
+
+   showWashroom() {
+      background(washroom_img);
+      
+      food.readPetName();
+
+      fill('Black');
+      textSize(20);
+      text(petName + ' is taking a bath.', 350, 20);
+   }
+
+   showGarden() {
+      background(garden_img);
+
+      food.readPetName();
+
+      fill('Black');
+      textSize(20);
+      text(petName + ' is playing.', 350, 20);
    }
 
    display() {
@@ -72,5 +93,11 @@ class Food {
          }
       }
 
+   }
+
+   readPetName() {
+      if(petName == "DOG'S NAME" || petName == null) {
+         petName = 'The dog';
+      }
    }
 }

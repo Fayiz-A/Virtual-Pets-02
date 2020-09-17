@@ -1,6 +1,7 @@
 //variables
-var dog;
-var dog_img, happyDog_img;//images 
+var dog;//sprite
+var dog_img, happyDog_img, bedroom_img, washroom_img, garden_img;//images 
+var petName;//dog's name
 
 //variables for database reference
 var database, foodStock;
@@ -13,10 +14,17 @@ var food;
 var feedButton, addFoodButton;
 var dogName;
 
+//gameState
+var gameState;
+
 function preload() {
   //loads the images
   dog_img = loadImage('images/dogImg.png');
   happyDog_img = loadImage('images/dogImg1.png');
+
+  garden_img = loadImage('images/garden.png');
+  bedroom_img = loadImage('images/bedroom.png');
+  washroom_img = loadImage('images/washroom.png');
 }
 
 function setup() {
@@ -48,6 +56,8 @@ function setup() {
   //creating and positioning input bar
   dogName = createInput("DOG'S NAME");
   dogName.position(800, 200);
+
+  readState();
 }
 
 function draw() {
@@ -62,10 +72,39 @@ function draw() {
 
   drawSprites();//draws the sprites
 
-  var petName = dogName.value();
+  petName = dogName.value();
 
   if(petName != "DOG'S NAME" && petName !== null) {
     feedButton.html('Feed ' + petName);
+  }
+
+  if(gameState != 'hungry') {
+    feedButton.hide();
+    addFoodButton.hide();
+
+    dog.visible = false;
+  } else {
+    feedButton.show();
+    addFoodButton.show();
+
+    dog.visible = true;
+  }
+
+  currentTime = hour();
+
+  if(currentTime == lastFed+1) {
+    food.showGarden();
+    gameState = 'playing';
+    updateState(gameState);
+  } 
+  else if(currentTime > lastFed + 1 && currentTime < lastFed + 4) {
+    food.showWashroom();
+    gameState = 'bathing';
+    updateState(gameState);
+  } 
+  else {
+    gameState = 'hungry';
+    updateState(gameState);
   }
 }
 
@@ -86,10 +125,15 @@ function showLastFedTime() {
   if (lastFed > 12) {
     lastFedTime = lastFed % 12 + ' pm';
   }
+
   else if (lastFed == 0) {
     lastFedTime = '12 am';
   }
 
+  else if(lastFed == 12) {
+    lastFedTime = '12 pm';
+  }
+  
   else {
     lastFedTime = lastFed + ' am';
   }
@@ -106,5 +150,19 @@ function updateFeedTime(time) {
   //writes the time of feeding in database
   database.ref('/').update({
     feedTime: time,
+  });
+}
+
+function readState() {
+  //reads the state from the database
+  database.ref('gameState').on('value', (data)=> {
+    gameState = data.val();
+  })
+}
+
+function updateState(state) {
+  //updates the gamestate in database
+  database.ref('/').update({
+    gameState: state,
   });
 }
